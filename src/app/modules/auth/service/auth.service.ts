@@ -6,8 +6,10 @@ import { map, of, BehaviorSubject } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { IResponse } from '../../../interface/IResponse';
 import { ILoginResponse } from '../../../interface/ILoginResponse';
-import { save } from '../../../utils/storage';
+import { remove, save } from '../../../utils/storage';
 import { Router } from '@angular/router';
+import { IRegister } from '../../../interface/IRegister';
+import { IRegisterResponse } from '../../../interface/IRegisterResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +36,19 @@ export class AuthService {
       )
   }
 
-  setCurrentUser(user: IUser) {
+  register(register: IRegister) {
+
+    delete register.confirm_password;
+
+    return this.http.post<IResponse<IRegisterResponse>>(this.api_url + "/users/register", register)
+  }
+
+  logout() {
+    this.setCurrentUser(null);
+    remove("token");
+    this.router.navigate(["/auth/login"]);
+  }
+  setCurrentUser(user: IUser | null) {
     this.currentUser.next(user);
   }
 }
